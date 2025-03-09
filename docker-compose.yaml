@@ -1,0 +1,43 @@
+services:
+  backend:
+    container_name: django
+    build: .
+    command: uvicorn core.asgi:application --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - .:/app
+    ports:
+      - 8000:8000
+    depends_on:
+      - django_redis
+
+  django_redis:
+    image: redis
+    container_name: django_redis
+    ports:
+      - 6379:6379
+  
+  django_db:
+    image: postgres
+    container_name: postgresql
+    restart: always
+    environment:
+      - POSTGRES_DB=django_db  # ✅ Sin espacio después de "="
+      - POSTGRES_USER=django    # ✅ Nombre correcto del usuario
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - ./dbdata:/var/lib/postgresql
+
+  pgadmin:
+      image: dpage/pgadmin4:latest  # Imagen oficial de pgAdmin
+      container_name: pgadmin
+      environment:
+        PGADMIN_DEFAULT_EMAIL: admin@admin.com  # Usuario por defecto
+        PGADMIN_DEFAULT_PASSWORD: admin  # Contraseña por defecto
+      ports:
+        - "5050:80"  # pgAdmin escuchará en el puerto 5050
+      volumes:
+        - ./pgadmin_data:/var/lib/pgadmin  # Persistencia de datos de pgAdmin
+      depends_on:
+        - django_db  # Asegura que la base de datos esté lista antes de iniciar pgAdmin
