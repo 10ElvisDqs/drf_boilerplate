@@ -10,7 +10,7 @@ local_settings.py
 db.sqlite3
 db.sqlite3-journal
 .dbdata
-.pgadmin_data
+pgadmin_data/
 media
 static
 
